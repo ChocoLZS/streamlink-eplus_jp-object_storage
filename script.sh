@@ -454,6 +454,28 @@ function obtain_calculate_rename_upload() {
 # Get file's information, rename it, upload it #
 ################################################
 
+####################
+# Check downloader #
+
+function check_downloader() {
+    if [[ -n "${USE_EXISTING_MPEG_TS_VIDEO_FILE}" ]]; then
+        echo 'Using existing MPEG-TS video file.'
+    elif [[ -n "${STREAMLINK_STREAM_URL}" ]]; then
+        streamlink --version
+    elif [[ -n "${YTDLP_STREAM_URL}" ]]; then
+        yt-dlp --version
+    elif [[ -n "${N_m3u8DL_RE_STREAM_URL}" ]]; then
+        N_m3u8DL-RE --version
+    elif [[ -n "${VIDEO_FILE_URL}" ]]; then
+        curl --version
+    elif [[ -n "${GENERATE_STILL_IMAGE_MPEG_TS}" ]]; then
+        echo 'Generating a still image MPEG-TS video.'
+    else
+        echo 'No downloader specified.'
+        exit 1
+    fi
+}
+
 ##############
 # ENTRYPOINT #
 
@@ -470,6 +492,8 @@ function main() {
     if [[ -n "${ENABLE_RCLONE}" ]]; then
         init_rclone
     fi
+
+    check_downloader
 
     process_stream_and_video "${output_ts_base_path}"
 
