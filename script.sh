@@ -342,6 +342,29 @@ function process_stream_and_video() {
 # Processor #
 #############
 
+##############
+# Streamlink #
+
+TOOLS_DIR=/opt/tools/bin
+STREAMLINK_APPIMAGE_EXTRACT_DIR=/opt/tools/bin/streamlink-appimage-extract
+
+function prepare_streamlink() {
+    ${TOOLS_DIR}/streamlink --appimage-extract
+    mv ${TOOLS_DIR}/streamlink ${TOOLS_DIR}/streamlink-bin
+    mv squashfs-root ${STREAMLINK_APPIMAGE_EXTRACT_DIR}
+    ln -s ${STREAMLINK_APPIMAGE_EXTRACT_DIR}/AppRun ${TOOLS_DIR}/streamlink
+    
+}
+
+function cleanup_streamlink() {
+    rm -rf ${STREAMLINK_APPIMAGE_EXTRACT_DIR}
+    rm ${TOOLS_DIR}/streamlink
+    mv ${TOOLS_DIR}/streamlink-bin ${TOOLS_DIR}/streamlink
+}
+
+# Streamlink #
+##############
+
 #############
 # Rclone CLI #
 
@@ -479,6 +502,20 @@ function check_downloader() {
 ##############
 # ENTRYPOINT #
 
+function prepare() {
+    if [[ -n "${ENABLE_RCLONE}" ]]; then
+        init_rclone
+    fi
+
+    check_downloader
+
+    prepare_streamlink
+}
+
+function cleanup() {
+    cleanup_streamlink
+}
+
 function main() {
     output_file_basename="${OUTPUT_FILENAME_BASE:-$(mktemp -u 'XXX')}"
 
@@ -489,11 +526,7 @@ function main() {
     # It could be a MKV. PLease believe our media player.
     output_ts_base_path="/opt/downloads/${output_file_basename}.ts"
 
-    if [[ -n "${ENABLE_RCLONE}" ]]; then
-        init_rclone
-    fi
-
-    check_downloader
+    prepare
 
     process_stream_and_video "${output_ts_base_path}"
 
@@ -502,6 +535,8 @@ function main() {
     else
         echo 'Downloaded file not found'
     fi
+
+    cleanup
 }
 
 # ENTRYPOINT #

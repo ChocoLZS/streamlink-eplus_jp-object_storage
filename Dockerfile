@@ -59,9 +59,9 @@ RUN if [ "$(uname -m)" = 'x86_64' ]; then \
 # ffmpeg binaries
 RUN mkdir -p "${TOOLS_DIR}/ffmpeg" && \
     if [ "$(uname -m)" = 'x86_64' ]; then \
-        ffmpeg_url='https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2025-03-05-13-01/ffmpeg-n7.1.1-1-gf023d2c61b-linux64-gpl-shared-7.1.tar.xz'; \
+        ffmpeg_url='https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-12-31-13-02/ffmpeg-n7.1-62-gb168ed9b14-linux64-gpl-shared-7.1.tar.xz'; \
     else \
-        ffmpeg_url='https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2025-03-05-13-01/ffmpeg-n7.1.1-1-gf023d2c61b-linuxarm64-gpl-shared-7.1.tar.xz'; \
+        ffmpeg_url='https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-12-31-13-02/ffmpeg-n7.1-62-gb168ed9b14-linuxarm64-gpl-shared-7.1.tar.xz'; \
     fi && \
     curl -L "${ffmpeg_url}" | \
         tar -C "${TOOLS_DIR}/ffmpeg" -f- -x --xz --strip-components=1 && \
@@ -105,8 +105,8 @@ RUN apt update && \
         -y \
         --no-install-suggests \
         --no-install-recommends \
-        #       -           -      -     appimage    .NET
-        'ca-certificates' 'curl' 'git' 'libfuse2' 'libicu72'
+        #       -           -      -      .NET
+        'ca-certificates' 'curl' 'git' 'libicu72'
 
 RUN mkdir -p "${TOOLS_DIR}/bin"
 RUN mkdir -p "${CONFIG_DIR}"

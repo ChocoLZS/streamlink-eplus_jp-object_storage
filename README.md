@@ -110,12 +110,6 @@ services:
     volumes:
       - ./downloads:/opt/downloads:rw
       - ./ytb.txt:/opt/config/cookies.txt:rw  # edit "cookies.txt" in it
-    cap_add:                   #################
-      - SYS_ADMIN              ##do not delete##
-    devices:                   ##  streamlink ##
-      - /dev/fuse              ##   appimage  ##
-    security_opt:              ##             ##
-      - apparmor:unconfined    #################
     environment:
       # base file name; will use a random one if leaving empty.
       - OUTPUT_FILENAME_BASE=
