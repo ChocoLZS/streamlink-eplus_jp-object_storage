@@ -349,7 +349,7 @@ TOOLS_DIR=/opt/tools/bin
 STREAMLINK_APPIMAGE_EXTRACT_DIR=/opt/tools/bin/streamlink-appimage-extract
 
 function prepare_streamlink() {
-    ${TOOLS_DIR}/streamlink --appimage-extract
+    ${TOOLS_DIR}/streamlink --appimage-extract > /dev/null
     mv ${TOOLS_DIR}/streamlink ${TOOLS_DIR}/streamlink-bin
     mv squashfs-root ${STREAMLINK_APPIMAGE_EXTRACT_DIR}
     ln -s ${STREAMLINK_APPIMAGE_EXTRACT_DIR}/AppRun ${TOOLS_DIR}/streamlink
@@ -507,9 +507,9 @@ function prepare() {
         init_rclone
     fi
 
-    check_downloader
-
     prepare_streamlink
+
+    check_downloader
 }
 
 function cleanup() {
