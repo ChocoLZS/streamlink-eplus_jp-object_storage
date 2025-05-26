@@ -507,7 +507,11 @@ function prepare() {
         init_rclone
     fi
 
+    echo '------ vvvvvv prepare streamlink vvvvvv'
+
     prepare_streamlink
+
+    echo '------ vvvvvv check downloader vvvvvv'
 
     check_downloader
 }
