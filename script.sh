@@ -349,7 +349,6 @@ TOOLS_DIR=/opt/tools/bin
 STREAMLINK_APPIMAGE_EXTRACT_DIR=/opt/tools/bin/streamlink-appimage-extract
 
 function prepare_streamlink() {
-    mv ${TOOLS_DIR}/streamlink ${TOOLS_DIR}/streamlink.AppImage
     ${TOOLS_DIR}/streamlink.AppImage --appimage-extract > /dev/null
     mv squashfs-root ${STREAMLINK_APPIMAGE_EXTRACT_DIR}
     ln -s ${STREAMLINK_APPIMAGE_EXTRACT_DIR}/AppRun ${TOOLS_DIR}/streamlink
@@ -357,9 +356,8 @@ function prepare_streamlink() {
 }
 
 function cleanup_streamlink() {
-    rm -rf ${STREAMLINK_APPIMAGE_EXTRACT_DIR}
+    rm -rf ${STREAMLINK_APPIMAGE_EXTRACT_DIR}    
     rm ${TOOLS_DIR}/streamlink
-    mv ${TOOLS_DIR}/streamlink.AppImage ${TOOLS_DIR}/streamlink
 }
 
 # Streamlink #
@@ -508,11 +506,9 @@ function prepare() {
     fi
 
     echo '------ vvvvvv prepare streamlink vvvvvv'
-
     prepare_streamlink
 
     echo '------ vvvvvv check downloader vvvvvv'
-
     check_downloader
 }
 
