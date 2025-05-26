@@ -1,44 +1,49 @@
-# Based on:
-#   Publishing Docker images - GitHub Docs
-#     https://docs.github.com/en/actions/publishing-packages/publishing-docker-images
-#   Distribute build across multiple runners § Multi-platform image with GitHub Actions | Docker Docs
-#     https://docs.docker.com/build/ci/github-actions/multi-platform/#distribute-build-across-multiple-runners
-
-name: Build and publish
+#
+name: Create and publish a Docker image
 
 on:
-  release:
-    types: [published]
   push:
-    branches: [mian, dev]  # always make changes on dev and make PR to mian
-
+    branches: ['main', 'dev']
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
+# Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
 env:
-  REGISTRY_IMAGE: ChocoLZS/streamlink-eplus_jp-object_storage
-  TAG_NAME: ${{ github.event_name == 'push' && (github.ref_name == 'mian' && 'latest' || 'unstable') || '' }}
-
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  CURRENT_BRANCH_NAME: ${{ github.head_ref  || github.ref_name }}
+# There is a single job in this workflow. It's configured to run on the latest available version of Ubuntu.
 jobs:
-  build_and_publish:
+  # unit-tests: # TODO
+  # build-test:
+  #   env:
+  #     PUPPETEER_SKIP_DOWNLOAD: true
+  #     DATABASE_URL: 'file:./data.db'
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+
+  build-and-push-image:
+    # needs: build-test
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
         platform:
           - linux/amd64
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
+      contents: read
       packages: write
-    # https://github.blog/changelog/2021-04-19-github-actions-limit-workflow-run-or-job-concurrency/
-    concurrency:
-      group: std::lock_guard
-    timeout-minutes: 20
+      attestations: write
+      id-token: write
+      # 
     steps:
-      -
-        name: Prepare platform info
-        run: |
-          platform=${{ matrix.platform }}
-          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV  
-      -
-        name: Check out the repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  # v4.1.7
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      # Uses the `docker/login-action` action to log in to the Container registry registry using the account and password that will publish the packages. Once published, the packages are scoped to the account defined here.
       - name: Log in to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
@@ -63,26 +68,23 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: ${{ env.TAG_NAME }}
+      # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
+      # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see "[Usage](https://github.com/docker/build-push-action#usage)" in the README of the `docker/build-push-action` repository.
+      # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
       - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4
         with:
           context: .
-          file: ./Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      -
-        name: Export digest
-        run: |
-          mkdir -p /tmp/digests
-          digest="${{ steps.push.outputs.digest }}"
-          touch "/tmp/digests/${digest#sha256:}"
-      -
-        name: Upload digest
-        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b  # v4.3.4
+      
+      # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built. It increases supply chain security for people who consume the image. For more information, see "[AUTOTITLE](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds)." 
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v1
         with:
-          name: digests-${{ env.PLATFORM_PAIR }}
-          path: /tmp/digests/*
-          if-no-files-found: error
-          retention-days: 1
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+      
