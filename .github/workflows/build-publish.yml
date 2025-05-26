@@ -13,7 +13,7 @@ on:
     branches: [mian, dev]  # always make changes on dev and make PR to mian
 
 env:
-  REGISTRY_IMAGE: pzhlkj6612/streamlink-eplus_jp-object_storage
+  REGISTRY_IMAGE: ChocoLZS/streamlink-eplus_jp-object_storage
   TAG_NAME: ${{ github.event_name == 'push' && (github.ref_name == 'mian' && 'latest' || 'unstable') || '' }}
 
 jobs:
