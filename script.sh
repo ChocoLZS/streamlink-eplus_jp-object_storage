@@ -356,8 +356,13 @@ function prepare_streamlink() {
 }
 
 function cleanup_streamlink() {
-    rm -rf ${STREAMLINK_APPIMAGE_EXTRACT_DIR}    
-    rm ${TOOLS_DIR}/streamlink
+    if [[ -d ${STREAMLINK_APPIMAGE_EXTRACT_DIR} ]]; then
+        rm -rf ${STREAMLINK_APPIMAGE_EXTRACT_DIR}
+    fi
+
+    if [[ -L ${TOOLS_DIR}/streamlink ]]; then
+        rm ${TOOLS_DIR}/streamlink
+    fi
 }
 
 # Streamlink #
