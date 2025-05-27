@@ -13,6 +13,7 @@ echo "------ the_datetime = ${the_datetime}"
 # How do I kill background processes / jobs when my shell script exits? - Stack Overflow
 #   https://stackoverflow.com/q/360201/360275#comment112697932_360275
 trap 'jobs -pr | xargs -r kill' SIGINT SIGTERM EXIT
+trap cleanup SIGINT SIGTERM EXIT
 
 #############
 # Utilities #
@@ -346,20 +347,17 @@ function process_stream_and_video() {
 # Streamlink #
 
 TOOLS_DIR=/opt/tools/bin
-STREAMLINK_APPIMAGE_EXTRACT_DIR=/opt/tools/bin/streamlink-appimage-extract
+STREAMLINK_APPIMAGE_EXTRACT_DIR=${TOOLS_DIR}/streamlink-appimage-extract
 
 function prepare_streamlink() {
-    ${TOOLS_DIR}/streamlink --appimage-extract > /dev/null
-    mv ${TOOLS_DIR}/streamlink ${TOOLS_DIR}/streamlink-bin
+    ${TOOLS_DIR}/streamlink.AppImage --appimage-extract > /dev/null
     mv squashfs-root ${STREAMLINK_APPIMAGE_EXTRACT_DIR}
     ln -s ${STREAMLINK_APPIMAGE_EXTRACT_DIR}/AppRun ${TOOLS_DIR}/streamlink
-    
 }
 
 function cleanup_streamlink() {
-    rm -rf ${STREAMLINK_APPIMAGE_EXTRACT_DIR}
+    rm -rf ${STREAMLINK_APPIMAGE_EXTRACT_DIR}    
     rm ${TOOLS_DIR}/streamlink
-    mv ${TOOLS_DIR}/streamlink-bin ${TOOLS_DIR}/streamlink
 }
 
 # Streamlink #
@@ -507,8 +505,10 @@ function prepare() {
         init_rclone
     fi
 
+    echo '------ vvvvvv prepare streamlink vvvvvv'
     prepare_streamlink
 
+    echo '------ vvvvvv check downloader vvvvvv'
     check_downloader
 }
 

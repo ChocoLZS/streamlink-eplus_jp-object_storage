@@ -76,8 +76,8 @@ RUN if [ "$(uname -m)" = 'x86_64' ]; then \
     else \
         streamlink_appimage_url='https://github.com/streamlink/streamlink-appimage/releases/download/7.1.3-1/streamlink-7.1.3-1-cp313-cp313-manylinux_2_28_aarch64.AppImage'; \
     fi && \
-    curl -L "${streamlink_appimage_url}" -o "${TOOLS_DIR}/bin/streamlink" && \
-        chmod u+x "${TOOLS_DIR}/bin/streamlink"
+    curl -L "${streamlink_appimage_url}" -o "${TOOLS_DIR}/bin/streamlink.AppImage" && \
+        chmod u+x "${TOOLS_DIR}/bin/streamlink.AppImage"
 
 # rclone binary
 RUN if [ "$(uname -m)" = 'x86_64' ]; then \

@@ -110,6 +110,7 @@ services:
     volumes:
       - ./downloads:/opt/downloads:rw
       - ./ytb.txt:/opt/config/cookies.txt:rw  # edit "cookies.txt" in it
+      - ./streamlink.AppImage:/opt/tools/bin/streamlink.AppImage
     environment:
       # base file name; will use a random one if leaving empty.
       - OUTPUT_FILENAME_BASE=
