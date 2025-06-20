@@ -78,9 +78,13 @@ n_m3u8dl_re_record_stdout_no_url_no_format_partial_command=(
         '--live-pipe-mux'
         '--no-ansi-color'
         '--auto-select'
-        ${INNER_N_m3u8DL_RE_OPTIONS}
-        # 'URL'
 )
+
+# Add N_m3u8DL_RE_OPTIONS using eval to preserve quotes
+if [[ -n "${INNER_N_m3u8DL_RE_OPTIONS}" ]]; then
+    eval "n_m3u8dl_re_record_stdout_no_url_no_format_partial_command+=(${INNER_N_m3u8DL_RE_OPTIONS})"
+fi
+# URL will be added later
 
 if [[ -n "${HTTPS_PROXY}" ]]; then
     n_m3u8dl_re_record_stdout_no_url_no_format_partial_command+=(
