@@ -76,8 +76,11 @@ fi
 n_m3u8dl_re_record_stdout_no_url_no_format_partial_command=(
     'N_m3u8DL-RE'
         '--live-pipe-mux'
+        '--live-keep-segments False'  # pipe to ffmpeg directly without saving segments
         '--no-ansi-color'
         '--auto-select'
+        '--no-log'
+        '--log-level OFF'   # IGNORE std output logging from N_m3u8DL-RE (it will be mixed with ffmpeg output otherwise)
 )
 
 # Add N_m3u8DL_RE_OPTIONS using eval to preserve quotes
